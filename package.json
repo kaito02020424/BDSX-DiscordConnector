@@ -1,0 +1,21 @@
+{
+  "name": "@bdsx/discord-module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "kaito02020424 <kaito02020424@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "discord-api-types": "^0.37.48",
+    "request": "^2.88.2",
+    "ts-node": "^10.9.1",
+    "ws": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/request": "^2.48.8",
+    "@types/ws": "^8.5.5"
+  }
+}
