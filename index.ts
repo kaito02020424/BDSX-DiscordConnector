@@ -92,6 +92,14 @@ export class Client {
         }
         return undefined
     }
+    getMember(guildId:string,userId:string):APIGuildMember | undefined {
+        if (guildId in this.members) {
+            for (let member of this.members[guildId]) {
+                if (member.user?.id == userId) return member 
+            }
+            return undefined
+        } else return undefined
+    }
     private resume() {
         this.socket.removeAllListeners()
         this.socket.close()

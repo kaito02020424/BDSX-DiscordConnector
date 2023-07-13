@@ -88,6 +88,18 @@ class Client {
         }
         return undefined;
     }
+    getMember(guildId, userId) {
+        var _a;
+        if (guildId in this.members) {
+            for (let member of this.members[guildId]) {
+                if (((_a = member.user) === null || _a === void 0 ? void 0 : _a.id) == userId)
+                    return member;
+            }
+            return undefined;
+        }
+        else
+            return undefined;
+    }
     resume() {
         this.socket.removeAllListeners();
         this.socket.close();
