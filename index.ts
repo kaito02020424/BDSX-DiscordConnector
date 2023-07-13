@@ -1,7 +1,7 @@
 import * as request from "request"
 import * as ws from "ws"
 import * as event from "events"
-import { APIMessage as Message, APIEmbed as APIEmbed, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, APIMessage, RESTPostAPIChannelMessageJSONBody, GatewayDispatchPayload, GatewayReceivePayload, GatewayReadyDispatch, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel } from "discord-api-types/v10"
+import { APIMessage as Message, APIEmbed as APIEmbed, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, APIMessage, RESTPostAPIChannelMessageJSONBody, GatewayDispatchPayload, GatewayReceivePayload, GatewayReadyDispatch, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, Snowflake, APIGuildMember } from "discord-api-types/v10"
 
 export class Client {
     private intents: number
@@ -14,6 +14,7 @@ export class Client {
     private op11Time: Date
     private op10Time: Date
     private channels: APIChannel[] = []
+    private members: { [guildId: Snowflake]: APIGuildMember[] } = {}
     constructor(token: string, intents: number[]) {
         this.intents = intents.reduce((sum, element) => sum + element, 0);
         this.token = token;
@@ -66,9 +67,8 @@ export class Client {
                     }
                     case eventsNames.GuildCreate: {
                         const data: GatewayGuildCreateDispatchData = jsonData.d
-                        for (let channel of data.channels) {
-                            this.channels.push(channel)
-                        }
+                        this.channels.push(...data.channels)
+                        this.members[data.id].push(...data.members)
                         discordEventsList.GuildCreate.emit(data)
                         break;
                     }

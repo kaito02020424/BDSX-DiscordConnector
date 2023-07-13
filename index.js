@@ -7,6 +7,7 @@ const event = require("events");
 class Client {
     constructor(token, intents) {
         this.channels = [];
+        this.members = {};
         this.intents = intents.reduce((sum, element) => sum + element, 0);
         this.token = token;
     }
@@ -59,9 +60,8 @@ class Client {
                     }
                     case eventsNames.GuildCreate: {
                         const data = jsonData.d;
-                        for (let channel of data.channels) {
-                            this.channels.push(channel);
-                        }
+                        this.channels.push(...data.channels);
+                        this.members[data.id].push(...data.members);
                         exports.discordEventsList.GuildCreate.emit(data);
                         break;
                     }
