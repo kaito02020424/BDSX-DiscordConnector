@@ -253,7 +253,6 @@ class Channel {
             }, (er, _res, body) => {
                 if (!er) {
                     const data = JSON.parse(body);
-                    console.log(data);
                     resolve(data);
                 }
             })

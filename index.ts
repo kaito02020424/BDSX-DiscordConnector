@@ -396,7 +396,6 @@ class Channel {
             }, (er, _res, body: string) => {
                 if (!er) {
                     const data: Message = JSON.parse(body)
-                    console.log(data)
                     resolve(data)
                 }
             })
