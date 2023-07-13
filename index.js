@@ -278,14 +278,3 @@ class Emoji {
 }
 class MessageActivity {
 }
-/*
-const e = new Embed()
-    .setAuthor({ name: "a" })
-    .setColor(0xff0000)
-const c = new Client("OTYxNDM4MDI0MjQ2Mzc4NTU4.GNc7Z2.OVRI0dkdnEvTUiOppc1IA-p2EcIKHlB02SYt4Q", [new Intents().AllIntents])
-c.connect()
-c.getChannel("886937851114176582").sendMessage({ embeds: [e] })
-setTimeout(() => {
-    c.disconnect()
-}, 5000);
-*/ 
