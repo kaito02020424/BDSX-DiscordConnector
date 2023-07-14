@@ -61,6 +61,9 @@ class Client {
                     case eventsNames.GuildCreate: {
                         const data = jsonData.d;
                         this.channels.push(...data.channels);
+                        if (this.members[data.id] == undefined) {
+                            this.members[data.id] = [];
+                        }
                         this.members[data.id].push(...data.members);
                         exports.discordEventsList.GuildCreate.emit(data);
                         break;

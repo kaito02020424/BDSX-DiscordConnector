@@ -68,6 +68,9 @@ export class Client {
                     case eventsNames.GuildCreate: {
                         const data: GatewayGuildCreateDispatchData = jsonData.d
                         this.channels.push(...data.channels)
+                        if (this.members[data.id] == undefined) {
+                            this.members[data.id] = []
+                        }
                         this.members[data.id].push(...data.members)
                         discordEventsList.GuildCreate.emit(data)
                         break;
@@ -92,10 +95,10 @@ export class Client {
         }
         return undefined
     }
-    getMember(guildId:string,userId:string):APIGuildMember | undefined {
+    getMember(guildId: string, userId: string): APIGuildMember | undefined {
         if (guildId in this.members) {
             for (let member of this.members[guildId]) {
-                if (member.user?.id == userId) return member 
+                if (member.user?.id == userId) return member
             }
             return undefined
         } else return undefined
