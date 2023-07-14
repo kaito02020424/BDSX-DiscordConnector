@@ -1,7 +1,7 @@
 import * as request from "request"
 import * as ws from "ws"
 import * as event from "events"
-import { APIMessage as Message, APIEmbed as APIEmbed, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, APIMessage, RESTPostAPIChannelMessageJSONBody, GatewayDispatchPayload, GatewayReceivePayload, GatewayReadyDispatch, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, Snowflake, APIGuildMember } from "discord-api-types/v10"
+import { APIMessage as Message, APIEmbed as APIEmbed, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, APIMessage, RESTPostAPIChannelMessageJSONBody, GatewayDispatchPayload, GatewayReceivePayload, GatewayReadyDispatch, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, Snowflake, APIGuildMember, GatewayMessageCreateDispatchData } from "discord-api-types/v10"
 
 export class Client {
     private intents: number
@@ -15,6 +15,7 @@ export class Client {
     private op10Time: Date
     private channels: APIChannel[] = []
     private members: { [guildId: Snowflake]: APIGuildMember[] } = {}
+    private guilds: number = 0;
     constructor(token: string, intents: number[]) {
         this.intents = intents.reduce((sum, element) => sum + element, 0);
         this.token = token;
@@ -30,7 +31,7 @@ export class Client {
                 this.socket.send(`{"op": 6,"d": {"token": "${this.token}","session_id": "${this.sessionId}","seq": ${this.nowSequence}}}`)
             })
         }
-        this.socket.on("message", (data: string, _bin: BinaryData) => {
+        this.socket.on("message", (data: string, _bin) => {
             const jsonData = JSON.parse(data)
             this.nowSequence = jsonData.s
             if (jsonData.op == 10) {
@@ -54,15 +55,33 @@ export class Client {
             if (jsonData.op == 0) {
                 switch (jsonData.t) {
                     case eventsNames.MessageCreate: {
-                        const data: Message = jsonData.d
+                        const data: GatewayMessageCreateDispatchData = jsonData.d
                         discordEventsList.MessageCreate.emit(data)
                         break;
                     }
                     case eventsNames.Ready: {
                         const data: GatewayReadyDispatchData = jsonData.d
+                        this.guilds = data.guilds.length
+                        for (let guild of data.guilds) {
+                            request({
+                                url: `https://discord.com/api/guilds/${guild.id}/channels`,
+                                method: "GET",
+                                headers: { Authorization: `Bot ${this.token}`, "Content-Type": "application/json" },
+                            }, (er, _res, body: string) => {
+                                this.guilds -= 1
+                                if (this.guilds == 0) {
+                                    discordEventsList.Ready.emit(data)
+                                }
+                                if (!er) {
+                                    const data: APIChannel[] = JSON.parse(body)
+                                    this.channels.push(...data)
+                                }
+                            })
+                                .on("error", (e: Error) => {
+                                })
+                        }
                         this.resumeGatewayUrl = data.resume_gateway_url
                         this.sessionId = data.session_id
-                        discordEventsList.Ready.emit(data)
                         break;
                     }
                     case eventsNames.GuildCreate: {
@@ -178,10 +197,10 @@ export const discordEventsList = {
     },
     MessageCreate: {
 
-        on: (callback: (payload: Message) => any) => {
+        on: (callback: (payload: GatewayMessageCreateDispatchData) => any) => {
             events.on("MESSAGE_CREATE", callback)
         },
-        emit: (arg1: Message) => {
+        emit: (arg1: GatewayMessageCreateDispatchData) => {
             events.emit("MESSAGE_CREATE", arg1)
         }
     },

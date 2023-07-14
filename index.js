@@ -8,6 +8,7 @@ class Client {
     constructor(token, intents) {
         this.channels = [];
         this.members = {};
+        this.guilds = 0;
         this.intents = intents.reduce((sum, element) => sum + element, 0);
         this.token = token;
     }
@@ -53,9 +54,27 @@ class Client {
                     }
                     case eventsNames.Ready: {
                         const data = jsonData.d;
+                        this.guilds = data.guilds.length;
+                        for (let guild of data.guilds) {
+                            request({
+                                url: `https://discord.com/api/guilds/${guild.id}/channels`,
+                                method: "GET",
+                                headers: { Authorization: `Bot ${this.token}`, "Content-Type": "application/json" },
+                            }, (er, _res, body) => {
+                                this.guilds -= 1;
+                                if (this.guilds == 0) {
+                                    exports.discordEventsList.Ready.emit(data);
+                                }
+                                if (!er) {
+                                    const data = JSON.parse(body);
+                                    this.channels.push(...data);
+                                }
+                            })
+                                .on("error", (e) => {
+                            });
+                        }
                         this.resumeGatewayUrl = data.resume_gateway_url;
                         this.sessionId = data.session_id;
-                        exports.discordEventsList.Ready.emit(data);
                         break;
                     }
                     case eventsNames.GuildCreate: {
@@ -144,7 +163,7 @@ var eventsNames;
     eventsNames["Reconnect"] = "RECONNECT";
     eventsNames["MessageCreate"] = "MESSAGE_CREATE";
     eventsNames["GuildCreate"] = "GUILD_CREATE";
-})(eventsNames || (exports.eventsNames = eventsNames = {}));
+})(eventsNames = exports.eventsNames || (exports.eventsNames = {}));
 const events = new event;
 exports.discordEventsList = {
     Error: {

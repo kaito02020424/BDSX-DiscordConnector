@@ -13,6 +13,7 @@ export declare class Client {
     private op10Time;
     private channels;
     private members;
+    private guilds;
     constructor(token: string, intents: number[]);
     connect(url?: string, resume?: boolean): void;
     disconnect(): void;
