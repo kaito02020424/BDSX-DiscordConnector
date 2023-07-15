@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import * as event from "events";
-import { APIMessage as Message, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, RESTPostAPIChannelMessageJSONBody, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, APIGuildMember } from "discord-api-types/v10";
+import { APIMessage as Message, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, RESTPostAPIChannelMessageJSONBody, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, APIGuildMember, GatewayMessageCreateDispatchData } from "discord-api-types/v10";
 export declare class Client {
     private intents;
     private token;
@@ -60,8 +60,8 @@ export declare const discordEventsList: {
         emit: (arg1: Error) => void;
     };
     MessageCreate: {
-        on: (callback: (payload: Message) => any) => void;
-        emit: (arg1: Message) => void;
+        on: (callback: (payload: GatewayMessageCreateDispatchData) => any) => void;
+        emit: (arg1: GatewayMessageCreateDispatchData) => void;
     };
     Ready: {
         on: (callback: (payload: GatewayReadyDispatchData) => any) => void;

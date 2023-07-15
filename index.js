@@ -61,13 +61,13 @@ class Client {
                                 method: "GET",
                                 headers: { Authorization: `Bot ${this.token}`, "Content-Type": "application/json" },
                             }, (er, _res, body) => {
-                                this.guilds -= 1;
-                                if (this.guilds == 0) {
-                                    exports.discordEventsList.Ready.emit(data);
-                                }
                                 if (!er) {
                                     const data = JSON.parse(body);
                                     this.channels.push(...data);
+                                }
+                                this.guilds -= 1;
+                                if (this.guilds == 0) {
+                                    exports.discordEventsList.Ready.emit(data);
                                 }
                             })
                                 .on("error", (e) => {
@@ -163,7 +163,7 @@ var eventsNames;
     eventsNames["Reconnect"] = "RECONNECT";
     eventsNames["MessageCreate"] = "MESSAGE_CREATE";
     eventsNames["GuildCreate"] = "GUILD_CREATE";
-})(eventsNames = exports.eventsNames || (exports.eventsNames = {}));
+})(eventsNames || (exports.eventsNames = eventsNames = {}));
 const events = new event;
 exports.discordEventsList = {
     Error: {

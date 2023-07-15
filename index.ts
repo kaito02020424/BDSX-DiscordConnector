@@ -68,13 +68,13 @@ export class Client {
                                 method: "GET",
                                 headers: { Authorization: `Bot ${this.token}`, "Content-Type": "application/json" },
                             }, (er, _res, body: string) => {
-                                this.guilds -= 1
-                                if (this.guilds == 0) {
-                                    discordEventsList.Ready.emit(data)
-                                }
                                 if (!er) {
                                     const data: APIChannel[] = JSON.parse(body)
                                     this.channels.push(...data)
+                                }
+                                this.guilds -= 1
+                                if (this.guilds == 0) {
+                                    discordEventsList.Ready.emit(data)
                                 }
                             })
                                 .on("error", (e: Error) => {
