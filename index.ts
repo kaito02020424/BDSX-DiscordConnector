@@ -454,6 +454,22 @@ class Channel {
                 })
         })
     }
+    deleteMessage(messageId: string):Promise<void> {
+        return new Promise((resolve, reject) => {
+            request({
+                url: `https://discord.com/api//channels/${this.info.id}/messages/${messageId}`,
+                method: "DELETE",
+                headers: { Authorization: `Bot ${this.token}`, "Content-Type": "application/json" },
+            }, (er, _res, body: string) => {
+                if (!er) {
+                    resolve()
+                }
+            })
+                .on("error", (e: Error) => {
+                    reject(e)
+                })
+        })
+    }
 }
 class User {
     id: string

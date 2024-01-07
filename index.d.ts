@@ -103,5 +103,6 @@ declare class Channel {
     constructor(Base: APIChannel, token: string);
     sendMessage(message: RESTPostAPIChannelMessageJSONBody): Promise<Message>;
     changeTopic(description: string): Promise<APIChannel>;
+    deleteMessage(messageId: string): Promise<void>;
 }
 export {};
