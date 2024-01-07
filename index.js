@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EmbedBuilder = exports.discordEventsList = exports.eventsNames = exports.Intents = exports.discordEvents = exports.Client = void 0;
+exports.EmbedBuilder = exports.discordEventsList = exports.eventsNames = exports.Intents = exports.Client = void 0;
 const request = require("request");
 const ws = require("ws");
 const event = require("events");
@@ -130,7 +130,6 @@ class Client {
     }
 }
 exports.Client = Client;
-exports.discordEvents = new event;
 class Intents {
     constructor() {
         this.GUILDS = 1 << 0;
@@ -163,7 +162,7 @@ var eventsNames;
     eventsNames["Reconnect"] = "RECONNECT";
     eventsNames["MessageCreate"] = "MESSAGE_CREATE";
     eventsNames["GuildCreate"] = "GUILD_CREATE";
-})(eventsNames || (exports.eventsNames = eventsNames = {}));
+})(eventsNames = exports.eventsNames || (exports.eventsNames = {}));
 const events = new event;
 exports.discordEventsList = {
     Error: {
@@ -284,6 +283,27 @@ class Channel {
                 method: "POST",
                 headers: { Authorization: `Bot ${this.token}`, "Content-Type": "application/json" },
                 body: JSON.stringify(message)
+            }, (er, _res, body) => {
+                if (!er) {
+                    const data = JSON.parse(body);
+                    resolve(data);
+                }
+            })
+                .on("error", (e) => {
+                reject(e);
+            });
+        });
+    }
+    changeTopic(description) {
+        return new Promise((resolve, reject) => {
+            const data = {
+                topic: description
+            };
+            request({
+                url: `https://discord.com/api/channels/${this.info.id}`,
+                method: "PATCH",
+                headers: { Authorization: `Bot ${this.token}`, "Content-Type": "application/json" },
+                body: JSON.stringify(data)
             }, (er, _res, body) => {
                 if (!er) {
                     const data = JSON.parse(body);

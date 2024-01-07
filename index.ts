@@ -1,7 +1,7 @@
 import * as request from "request"
 import * as ws from "ws"
 import * as event from "events"
-import { APIMessage as Message, APIEmbed as APIEmbed, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, APIMessage, RESTPostAPIChannelMessageJSONBody, GatewayDispatchPayload, GatewayReceivePayload, GatewayReadyDispatch, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, Snowflake, APIGuildMember, GatewayMessageCreateDispatchData } from "discord-api-types/v10"
+import { APIMessage as Message, APIEmbed as APIEmbed, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, APIMessage, RESTPostAPIChannelMessageJSONBody, GatewayDispatchPayload, GatewayReceivePayload, GatewayReadyDispatch, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, Snowflake, APIGuildMember, GatewayMessageCreateDispatchData, RESTPatchAPIGuildChannelPositionsJSONBody, RESTPatchAPIChannelJSONBody } from "discord-api-types/v10"
 
 export class Client {
     private intents: number
@@ -129,7 +129,6 @@ export class Client {
         this.connect(this.resumeGatewayUrl, true)
     }
 }
-export const discordEvents = new event
 export class Intents {
     GUILDS: number
     GUILD_MEMBERS: number
@@ -426,6 +425,27 @@ class Channel {
             }, (er, _res, body: string) => {
                 if (!er) {
                     const data: Message = JSON.parse(body)
+                    resolve(data)
+                }
+            })
+                .on("error", (e: Error) => {
+                    reject(e)
+                })
+        })
+    }
+    changeTopic(description: string):Promise<APIChannel> {
+        return new Promise((resolve, reject) => {
+            const data:RESTPatchAPIChannelJSONBody = {
+                topic:description
+            }
+            request({
+                url: `https://discord.com/api/channels/${this.info.id}`,
+                method: "PATCH",
+                headers: { Authorization: `Bot ${this.token}`, "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            }, (er, _res, body: string) => {
+                if (!er) {
+                    const data: APIChannel = JSON.parse(body)
                     resolve(data)
                 }
             })

@@ -1,5 +1,3 @@
-/// <reference types="node" />
-import * as event from "events";
 import { APIMessage as Message, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, RESTPostAPIChannelMessageJSONBody, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, APIGuildMember, GatewayMessageCreateDispatchData } from "discord-api-types/v10";
 export declare class Client {
     private intents;
@@ -21,7 +19,6 @@ export declare class Client {
     getMember(guildId: string, userId: string): APIGuildMember | undefined;
     private resume;
 }
-export declare const discordEvents: event;
 export declare class Intents {
     GUILDS: number;
     GUILD_MEMBERS: number;
@@ -105,5 +102,6 @@ declare class Channel {
     private token;
     constructor(Base: APIChannel, token: string);
     sendMessage(message: RESTPostAPIChannelMessageJSONBody): Promise<Message>;
+    changeTopic(description: string): Promise<APIChannel>;
 }
 export {};
