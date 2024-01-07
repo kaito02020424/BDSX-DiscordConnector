@@ -104,7 +104,7 @@ export class Client {
         })
     }
     disconnect() {
-        clearInterval(this.heartBeat)
+        clearInterval(this.heartBeat as NodeJS.Timeout)
         this.socket.removeAllListeners()
         this.socket.close()
     }
@@ -125,7 +125,7 @@ export class Client {
     private resume() {
         this.socket.removeAllListeners()
         this.socket.close()
-        clearInterval(this.heartBeat)
+        clearInterval(this.heartBeat as NodeJS.Timeout)
         this.connect(this.resumeGatewayUrl, true)
     }
 }
