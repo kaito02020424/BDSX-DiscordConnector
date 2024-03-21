@@ -1,7 +1,7 @@
 import * as request from "request"
 import * as ws from "ws"
 import * as event from "events"
-import { APIMessage as Message, APIEmbed as APIEmbed, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, APIMessage, RESTPostAPIChannelMessageJSONBody, GatewayDispatchPayload, GatewayReceivePayload, GatewayReadyDispatch, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, Snowflake, APIGuildMember, GatewayMessageCreateDispatchData, RESTPatchAPIGuildChannelPositionsJSONBody, RESTPatchAPIChannelJSONBody } from "discord-api-types/v10"
+import { APIMessage as Message, APIEmbed as APIEmbed, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, APIMessage, RESTPostAPIChannelMessageJSONBody, GatewayDispatchPayload, GatewayReceivePayload, GatewayReadyDispatch, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, Snowflake, APIGuildMember, GatewayMessageCreateDispatchData, RESTPatchAPIGuildChannelPositionsJSONBody, RESTPatchAPIChannelJSONBody, APIGuild } from "discord-api-types/v10"
 
 export class Client {
     private intents: number
@@ -15,7 +15,8 @@ export class Client {
     private op10Time: Date
     private channels: APIChannel[] = []
     private members: { [guildId: Snowflake]: APIGuildMember[] } = {}
-    private guilds: number = 0;
+    private guildsCount: number = 0;
+    private guilds: string[];
     public discordEventsList: Record<keyof typeof eventsNames | "Error", { on: Function, emit: Function }>
 
     constructor(token: string, intents: number[]) {
@@ -99,8 +100,9 @@ export class Client {
                     }
                     case eventsNames.Ready: {
                         const data: GatewayReadyDispatchData = jsonData.d
-                        this.guilds = data.guilds.length
+                        this.guildsCount = data.guilds.length
                         for (let guild of data.guilds) {
+                            this.guilds.push(guild.id)
                             request({
                                 url: `https://discord.com/api/guilds/${guild.id}/channels`,
                                 method: "GET",
@@ -110,8 +112,8 @@ export class Client {
                                     const data: APIChannel[] = JSON.parse(body)
                                     this.channels.push(...data)
                                 }
-                                this.guilds -= 1
-                                if (this.guilds == 0) {
+                                this.guildsCount -= 1
+                                if (this.guildsCount == 0) {
                                     this.discordEventsList.Ready.emit(data)
                                 }
                             })
@@ -159,6 +161,24 @@ export class Client {
             }
             return undefined
         } else return undefined
+    }
+    getGuild(guildId: string): Promise<APIGuild | undefined> {
+        return new Promise(r => {
+            if (!this.guilds.includes(guildId)) return r(undefined)
+            request({
+                url: `https://discord.com/api/guilds/${guildId}`,
+                method: "GET",
+                headers: { Authorization: `Bot ${this.token}`, "Content-Type": "application/json" },
+            }, (er, _res, body: string) => {
+                if (!er) {
+                    const data: APIGuild = JSON.parse(body)
+                    r(data)
+                }
+            })
+                .on("error", (e: Error) => {
+                    r(undefined)
+                })
+        })
     }
     private resume() {
         this.socket.removeAllListeners()
