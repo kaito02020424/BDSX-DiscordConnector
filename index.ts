@@ -16,14 +16,52 @@ export class Client {
     private channels: APIChannel[] = []
     private members: { [guildId: Snowflake]: APIGuildMember[] } = {}
     private guilds: number = 0;
+    public discordEventsList: Record<keyof typeof eventsNames | "Error", { on: Function, emit: Function }>
+
     constructor(token: string, intents: number[]) {
         this.intents = intents.reduce((sum, element) => sum + element, 0);
         this.token = token;
+        const events = new event
+        this.discordEventsList = {
+            Error: {
+                on: (callback: (payload: Error) => any) => {
+                    events.on("ERROR", callback)
+                },
+                emit: (arg1: Error) => {
+                    events.emit("ERROR", arg1)
+                }
+            },
+            MessageCreate: {
+
+                on: (callback: (payload: GatewayMessageCreateDispatchData) => any) => {
+                    events.on("MESSAGE_CREATE", callback)
+                },
+                emit: (arg1: GatewayMessageCreateDispatchData) => {
+                    events.emit("MESSAGE_CREATE", arg1)
+                }
+            },
+            Ready: {
+                on: (callback: (payload: GatewayReadyDispatchData) => any) => {
+                    events.on("READY", callback)
+                },
+                emit: (arg1: GatewayReadyDispatchData) => {
+                    events.emit("READY", arg1)
+                }
+            },
+            GuildCreate: {
+                on: (callback: (payload: GatewayGuildCreateDispatchData) => any) => {
+                    events.on("GUILD_CREATE", callback)
+                },
+                emit: (arg1: GatewayGuildCreateDispatchData) => {
+                    events.emit("GUILD_CREATE", arg1)
+                }
+            }
+        } as const
     }
     connect(url: string = "wss://gateway.discord.gg/?v=10&encoding=json", resume: boolean = false) {
         this.socket = new ws(url);
         this.socket.addEventListener("error", (ev) => {
-            discordEventsList.Error.emit(new Error(ev.message))
+            this.discordEventsList.Error.emit(new Error(ev.message))
             this.resume()
         })
         if (resume) {
@@ -56,7 +94,7 @@ export class Client {
                 switch (jsonData.t) {
                     case eventsNames.MessageCreate: {
                         const data: GatewayMessageCreateDispatchData = jsonData.d
-                        discordEventsList.MessageCreate.emit(data)
+                        this.discordEventsList.MessageCreate.emit(data)
                         break;
                     }
                     case eventsNames.Ready: {
@@ -74,7 +112,7 @@ export class Client {
                                 }
                                 this.guilds -= 1
                                 if (this.guilds == 0) {
-                                    discordEventsList.Ready.emit(data)
+                                    this.discordEventsList.Ready.emit(data)
                                 }
                             })
                                 .on("error", (e: Error) => {
@@ -91,7 +129,7 @@ export class Client {
                             this.members[data.id] = []
                         }
                         this.members[data.id].push(...data.members)
-                        discordEventsList.GuildCreate.emit(data)
+                        this.discordEventsList.GuildCreate.emit(data)
                         break;
                     }
                 }
@@ -179,47 +217,10 @@ export class Intents {
 }
 export enum eventsNames {
     Ready = "READY",
-    Resumed = "RESUMED",
-    Reconnect = "RECONNECT",
     MessageCreate = "MESSAGE_CREATE",
     GuildCreate = "GUILD_CREATE"
 }
-const events = new event
-export const discordEventsList = {
-    Error: {
-        on: (callback: (payload: Error) => any) => {
-            events.on("ERROR", callback)
-        },
-        emit: (arg1: Error) => {
-            events.emit("ERROR", arg1)
-        }
-    },
-    MessageCreate: {
 
-        on: (callback: (payload: GatewayMessageCreateDispatchData) => any) => {
-            events.on("MESSAGE_CREATE", callback)
-        },
-        emit: (arg1: GatewayMessageCreateDispatchData) => {
-            events.emit("MESSAGE_CREATE", arg1)
-        }
-    },
-    Ready: {
-        on: (callback: (payload: GatewayReadyDispatchData) => any) => {
-            events.on("READY", callback)
-        },
-        emit: (arg1: GatewayReadyDispatchData) => {
-            events.emit("READY", arg1)
-        }
-    },
-    GuildCreate: {
-        on: (callback: (payload: GatewayGuildCreateDispatchData) => any) => {
-            events.on("GUILD_CREATE", callback)
-        },
-        emit: (arg1: GatewayGuildCreateDispatchData) => {
-            events.emit("GUILD_CREATE", arg1)
-        }
-    }
-}
 
 export class EmbedBuilder {
     private author?: APIEmbedAuthor | undefined
@@ -433,10 +434,10 @@ class Channel {
                 })
         })
     }
-    changeTopic(description: string):Promise<APIChannel> {
+    changeTopic(description: string): Promise<APIChannel> {
         return new Promise((resolve, reject) => {
-            const data:RESTPatchAPIChannelJSONBody = {
-                topic:description
+            const data: RESTPatchAPIChannelJSONBody = {
+                topic: description
             }
             request({
                 url: `https://discord.com/api/channels/${this.info.id}`,
@@ -454,7 +455,7 @@ class Channel {
                 })
         })
     }
-    deleteMessage(messageId: string):Promise<void> {
+    deleteMessage(messageId: string): Promise<void> {
         return new Promise((resolve, reject) => {
             request({
                 url: `https://discord.com/api//channels/${this.info.id}/messages/${messageId}`,
