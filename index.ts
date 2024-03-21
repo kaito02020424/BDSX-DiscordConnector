@@ -162,7 +162,7 @@ export class Client {
             return undefined
         } else return undefined
     }
-    getGuild(guildId: string): Promise<APIGuild | undefined> {
+    getGuild(guildId: string): Promise<Guild | undefined> {
         return new Promise(r => {
             if (!this.guilds.includes(guildId)) return r(undefined)
             request({
@@ -172,7 +172,7 @@ export class Client {
             }, (er, _res, body: string) => {
                 if (!er) {
                     const data: APIGuild = JSON.parse(body)
-                    r(data)
+                    r(new Guild(data, this.token))
                 }
             })
                 .on("error", (e: Error) => {
@@ -370,5 +370,14 @@ class Channel {
                     reject(e)
                 })
         })
+    }
+}
+
+class Guild {
+    public info: APIGuild
+    private token: string
+    constructor(Base: APIGuild, token: string) {
+        this.info = Base;
+        this.token = token;
     }
 }
