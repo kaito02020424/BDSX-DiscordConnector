@@ -399,14 +399,18 @@ export class Guild {
         this.client = Client;
     }
 
-    registerSlashCommand(command: APIApplicationCommand) {
-        if (command.type !== 1) throw new TypeError("registerSlashCommand() can only register slash command.")
-        request({
-            url: `https://discord.com/api/v10/applications/${this.client.applicationId}/guilds/${this.info.id}/commands`,
-            method: "POST",
-            headers: { Authorization: `Bot ${this.token}`, "Content-Type": "application/json" },
-            body: JSON.stringify(command)
-        }, (err, res, body) => {
+    registerSlashCommand(command: APIApplicationCommand): Promise<void> {
+        return new Promise((resolve,reject) => {
+            if (command.type !== 1) return reject("registerSlashCommand() can only register slash command.")
+            request({
+                url: `https://discord.com/api/v10/applications/${this.client.applicationId}/guilds/${this.info.id}/commands`,
+                method: "POST",
+                headers: { Authorization: `Bot ${this.token}`, "Content-Type": "application/json" },
+                body: JSON.stringify(command)
+            }, (err, res, body) => {
+                if (!err) resolve()
+                reject(err)
+            })
         })
     }
     static response(content: RESTPostAPIChannelMessageJSONBody, interactionId: string, token: string) {

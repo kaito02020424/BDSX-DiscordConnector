@@ -116,7 +116,7 @@ export declare class Guild {
     private token;
     private client;
     constructor(Client: Client, Base: APIGuild, token: string);
-    registerSlashCommand(command: APIApplicationCommand): void;
+    registerSlashCommand(command: APIApplicationCommand): Promise<void>;
     static response(content: RESTPostAPIChannelMessageJSONBody, interactionId: string, token: string): void;
 }
 export {};
