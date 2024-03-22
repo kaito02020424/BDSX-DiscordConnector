@@ -400,7 +400,7 @@ export class Guild {
     }
 
     registerSlashCommand(command: APIApplicationCommand): Promise<void> {
-        return new Promise((resolve,reject) => {
+        return new Promise((resolve, reject) => {
             if (command.type !== 1) return reject("registerSlashCommand() can only register slash command.")
             request({
                 url: `https://discord.com/api/v10/applications/${this.client.applicationId}/guilds/${this.info.id}/commands`,
@@ -408,8 +408,10 @@ export class Guild {
                 headers: { Authorization: `Bot ${this.token}`, "Content-Type": "application/json" },
                 body: JSON.stringify(command)
             }, (err, res, body) => {
-                if (!err) resolve()
-                reject(err)
+                if (res.statusCode.toString().startsWith("2")) resolve()
+                if (JSON.parse(body).retry_after != undefined) setTimeout(async () => {
+                    resolve(await this.registerSlashCommand(command))
+                }, (JSON.parse(body).retry_after + 1) * 1000);
             })
         })
     }
