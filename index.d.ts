@@ -1,4 +1,4 @@
-import { APIMessage as Message, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, RESTPostAPIChannelMessageJSONBody, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, APIGuildMember, GatewayMessageCreateDispatchData } from "discord-api-types/v10";
+import { APIMessage as Message, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, RESTPostAPIChannelMessageJSONBody, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, APIGuildMember, GatewayMessageCreateDispatchData, APIGuild, APIApplicationCommand, GatewayInteractionCreateDispatchData } from "discord-api-types/v10";
 export declare class Client {
     private intents;
     private token;
@@ -11,12 +11,37 @@ export declare class Client {
     private op10Time;
     private channels;
     private members;
+    private guildsCount;
     private guilds;
+    applicationId: string;
+    discordEventsList: {
+        readonly Error: {
+            readonly on: (callback: (payload: Error) => any) => void;
+            readonly emit: (arg1: Error) => void;
+        };
+        readonly MessageCreate: {
+            readonly on: (callback: (payload: GatewayMessageCreateDispatchData) => any) => void;
+            readonly emit: (arg1: GatewayMessageCreateDispatchData) => void;
+        };
+        readonly Ready: {
+            readonly on: (callback: (payload: GatewayReadyDispatchData) => any) => void;
+            readonly emit: (arg1: GatewayReadyDispatchData) => void;
+        };
+        readonly GuildCreate: {
+            readonly on: (callback: (payload: GatewayGuildCreateDispatchData) => any) => void;
+            readonly emit: (arg1: GatewayGuildCreateDispatchData) => void;
+        };
+        readonly InteractionCreate: {
+            readonly on: (callback: (payload: GatewayInteractionCreateDispatchData) => any) => void;
+            readonly emit: (arg1: GatewayInteractionCreateDispatchData) => void;
+        };
+    };
     constructor(token: string, intents: number[]);
     connect(url?: string, resume?: boolean): void;
     disconnect(): void;
     getChannel(id: string): Channel | undefined;
     getMember(guildId: string, userId: string): APIGuildMember | undefined;
+    getGuild(guildId: string): Promise<Guild | undefined>;
     private resume;
 }
 export declare class Intents {
@@ -46,29 +71,10 @@ export declare class Intents {
 }
 export declare enum eventsNames {
     Ready = "READY",
-    Resumed = "RESUMED",
-    Reconnect = "RECONNECT",
     MessageCreate = "MESSAGE_CREATE",
-    GuildCreate = "GUILD_CREATE"
+    GuildCreate = "GUILD_CREATE",
+    InteractionCreate = "INTERACTION_CREATE"
 }
-export declare const discordEventsList: {
-    Error: {
-        on: (callback: (payload: Error) => any) => void;
-        emit: (arg1: Error) => void;
-    };
-    MessageCreate: {
-        on: (callback: (payload: GatewayMessageCreateDispatchData) => any) => void;
-        emit: (arg1: GatewayMessageCreateDispatchData) => void;
-    };
-    Ready: {
-        on: (callback: (payload: GatewayReadyDispatchData) => any) => void;
-        emit: (arg1: GatewayReadyDispatchData) => void;
-    };
-    GuildCreate: {
-        on: (callback: (payload: GatewayGuildCreateDispatchData) => any) => void;
-        emit: (arg1: GatewayGuildCreateDispatchData) => void;
-    };
-};
 export declare class EmbedBuilder {
     private author?;
     private title?;
@@ -104,5 +110,13 @@ declare class Channel {
     sendMessage(message: RESTPostAPIChannelMessageJSONBody): Promise<Message>;
     changeTopic(description: string): Promise<APIChannel>;
     deleteMessage(messageId: string): Promise<void>;
+}
+export declare class Guild {
+    info: APIGuild;
+    private token;
+    private client;
+    constructor(Client: Client, Base: APIGuild, token: string);
+    registerSlashCommand(command: APIApplicationCommand): void;
+    static response(content: RESTPostAPIChannelMessageJSONBody, interactionId: string, token: string): void;
 }
 export {};

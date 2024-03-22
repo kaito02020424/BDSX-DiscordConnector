@@ -1,7 +1,7 @@
 import * as request from "request"
 import * as ws from "ws"
 import * as event from "events"
-import { APIMessage as Message, APIEmbed as APIEmbed, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, APIMessage, RESTPostAPIChannelMessageJSONBody, GatewayDispatchPayload, GatewayReceivePayload, GatewayReadyDispatch, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, Snowflake, APIGuildMember, GatewayMessageCreateDispatchData, RESTPatchAPIGuildChannelPositionsJSONBody, RESTPatchAPIChannelJSONBody, APIGuild } from "discord-api-types/v10"
+import { APIMessage as Message, APIEmbed as APIEmbed, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, APIMessage, RESTPostAPIChannelMessageJSONBody, GatewayDispatchPayload, GatewayReceivePayload, GatewayReadyDispatch, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, Snowflake, APIGuildMember, GatewayMessageCreateDispatchData, RESTPatchAPIGuildChannelPositionsJSONBody, RESTPatchAPIChannelJSONBody, APIGuild, APIApplicationCommand, ApplicationCommandType, GatewayInteractionCreateDispatchData, InteractionResponseType, APIModalInteractionResponseCallbackData } from "discord-api-types/v10"
 
 export class Client {
     private intents: number
@@ -16,8 +16,9 @@ export class Client {
     private channels: APIChannel[] = []
     private members: { [guildId: Snowflake]: APIGuildMember[] } = {}
     private guildsCount: number = 0;
-    private guilds: string[];
-    public discordEventsList: Record<keyof typeof eventsNames | "Error", { on: Function, emit: Function }>
+    private guilds: string[] = [];
+    public applicationId: string
+    public discordEventsList: { readonly Error: { readonly on: (callback: (payload: Error) => any) => void; readonly emit: (arg1: Error) => void }; readonly MessageCreate: { readonly on: (callback: (payload: GatewayMessageCreateDispatchData) => any) => void; readonly emit: (arg1: GatewayMessageCreateDispatchData) => void }; readonly Ready: { readonly on: (callback: (payload: GatewayReadyDispatchData) => any) => void; readonly emit: (arg1: GatewayReadyDispatchData) => void }; readonly GuildCreate: { readonly on: (callback: (payload: GatewayGuildCreateDispatchData) => any) => void; readonly emit: (arg1: GatewayGuildCreateDispatchData) => void }; readonly InteractionCreate: { readonly on: (callback: (payload: GatewayInteractionCreateDispatchData) => any) => void; readonly emit: (arg1: GatewayInteractionCreateDispatchData) => void } }
 
     constructor(token: string, intents: number[]) {
         this.intents = intents.reduce((sum, element) => sum + element, 0);
@@ -55,6 +56,14 @@ export class Client {
                 },
                 emit: (arg1: GatewayGuildCreateDispatchData) => {
                     events.emit("GUILD_CREATE", arg1)
+                }
+            },
+            InteractionCreate: {
+                on: (callback: (payload: GatewayInteractionCreateDispatchData) => any) => {
+                    events.on("INTERACTION_CREATE", callback)
+                },
+                emit: (arg1: GatewayInteractionCreateDispatchData) => {
+                    events.emit("INTERACTION_CREATE", arg1)
                 }
             }
         } as const
@@ -100,6 +109,7 @@ export class Client {
                     }
                     case eventsNames.Ready: {
                         const data: GatewayReadyDispatchData = jsonData.d
+                        this.applicationId = data.application.id
                         this.guildsCount = data.guilds.length
                         for (let guild of data.guilds) {
                             this.guilds.push(guild.id)
@@ -132,6 +142,11 @@ export class Client {
                         }
                         this.members[data.id].push(...data.members)
                         this.discordEventsList.GuildCreate.emit(data)
+                        break;
+                    }
+                    case eventsNames.InteractionCreate: {
+                        const data: GatewayInteractionCreateDispatchData = jsonData.d
+                        this.discordEventsList.InteractionCreate.emit(data)
                         break;
                     }
                 }
@@ -172,7 +187,7 @@ export class Client {
             }, (er, _res, body: string) => {
                 if (!er) {
                     const data: APIGuild = JSON.parse(body)
-                    r(new Guild(data, this.token))
+                    r(new Guild(this, data, this.token))
                 }
             })
                 .on("error", (e: Error) => {
@@ -238,7 +253,8 @@ export class Intents {
 export enum eventsNames {
     Ready = "READY",
     MessageCreate = "MESSAGE_CREATE",
-    GuildCreate = "GUILD_CREATE"
+    GuildCreate = "GUILD_CREATE",
+    InteractionCreate = "INTERACTION_CREATE"
 }
 
 
@@ -373,11 +389,33 @@ class Channel {
     }
 }
 
-class Guild {
+export class Guild {
     public info: APIGuild
     private token: string
-    constructor(Base: APIGuild, token: string) {
+    private client: Client
+    constructor(Client: Client, Base: APIGuild, token: string) {
         this.info = Base;
         this.token = token;
+        this.client = Client;
+    }
+
+    registerSlashCommand(command: APIApplicationCommand) {
+        if (command.type !== ApplicationCommandType.ChatInput) throw new TypeError("registerSlashCommand() can only register slash command.")
+        request({
+            url: `https://discord.com/api/v10/applications/${this.client.applicationId}/guilds/${this.info.id}/commands`,
+            method: "POST",
+            headers: { Authorization: `Bot ${this.token}`, "Content-Type": "application/json" },
+            body: JSON.stringify(command)
+        }, (err, res, body) => {
+        })
+    }
+    static response(content: RESTPostAPIChannelMessageJSONBody, interactionId: string, token: string) {
+        request({
+            url: `https://discord.com/api/v10/interactions/${interactionId}/${token}/callback`,
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ type: InteractionResponseType.ChannelMessageWithSource, data: content })
+        }, (er, _res, body: string) => {
+        })
     }
 }
