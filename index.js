@@ -4,7 +4,6 @@ exports.Guild = exports.EmbedBuilder = exports.eventsNames = exports.Intents = e
 var request = require("request");
 var ws = require("ws");
 var event = require("events");
-var v10_1 = require("discord-api-types/v10");
 var Client = /** @class */ (function () {
     function Client(token, intents) {
         this.channels = [];
@@ -374,7 +373,7 @@ var Guild = /** @class */ (function () {
         this.client = Client;
     }
     Guild.prototype.registerSlashCommand = function (command) {
-        if (command.type !== v10_1.ApplicationCommandType.ChatInput)
+        if (command.type !== 1)
             throw new TypeError("registerSlashCommand() can only register slash command.");
         request({
             url: "https://discord.com/api/v10/applications/".concat(this.client.applicationId, "/guilds/").concat(this.info.id, "/commands"),
@@ -389,7 +388,7 @@ var Guild = /** @class */ (function () {
             url: "https://discord.com/api/v10/interactions/".concat(interactionId, "/").concat(token, "/callback"),
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ type: v10_1.InteractionResponseType.ChannelMessageWithSource, data: content })
+            body: JSON.stringify({ type: 4, data: content })
         }, function (er, _res, body) {
         });
     };

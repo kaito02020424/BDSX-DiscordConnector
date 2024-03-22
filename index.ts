@@ -400,7 +400,7 @@ export class Guild {
     }
 
     registerSlashCommand(command: APIApplicationCommand) {
-        if (command.type !== ApplicationCommandType.ChatInput) throw new TypeError("registerSlashCommand() can only register slash command.")
+        if (command.type !== 1) throw new TypeError("registerSlashCommand() can only register slash command.")
         request({
             url: `https://discord.com/api/v10/applications/${this.client.applicationId}/guilds/${this.info.id}/commands`,
             method: "POST",
@@ -414,7 +414,7 @@ export class Guild {
             url: `https://discord.com/api/v10/interactions/${interactionId}/${token}/callback`,
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ type: InteractionResponseType.ChannelMessageWithSource, data: content })
+            body: JSON.stringify({ type: 4, data: content })
         }, (er, _res, body: string) => {
         })
     }
