@@ -1,4 +1,4 @@
-import { APIMessage as Message, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, RESTPostAPIChannelMessageJSONBody, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, APIGuildMember, GatewayMessageCreateDispatchData, APIGuild, APIApplicationCommand, GatewayInteractionCreateDispatchData } from "discord-api-types/v10";
+import { APIMessage as Message, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, RESTPostAPIChannelMessageJSONBody, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, APIGuildMember, GatewayMessageCreateDispatchData, APIGuild, APIApplicationCommand, GatewayInteractionCreateDispatchData, APICommandAutocompleteInteractionResponseCallbackData } from "discord-api-types/v10";
 export declare class Client {
     private intents;
     private token;
@@ -118,5 +118,6 @@ export declare class Guild {
     constructor(Client: Client, Base: APIGuild, token: string);
     registerSlashCommand(command: APIApplicationCommand): Promise<void>;
     static response(content: RESTPostAPIChannelMessageJSONBody, interactionId: string, token: string): void;
+    static autocomplete(content: APICommandAutocompleteInteractionResponseCallbackData, interactionId: string, token: string): void;
 }
 export {};

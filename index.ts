@@ -1,7 +1,7 @@
 import * as request from "request"
 import * as ws from "ws"
 import * as event from "events"
-import { APIMessage as Message, APIEmbed as APIEmbed, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, APIMessage, RESTPostAPIChannelMessageJSONBody, GatewayDispatchPayload, GatewayReceivePayload, GatewayReadyDispatch, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, Snowflake, APIGuildMember, GatewayMessageCreateDispatchData, RESTPatchAPIGuildChannelPositionsJSONBody, RESTPatchAPIChannelJSONBody, APIGuild, APIApplicationCommand, ApplicationCommandType, GatewayInteractionCreateDispatchData, InteractionResponseType, APIModalInteractionResponseCallbackData } from "discord-api-types/v10"
+import { APIMessage as Message, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, RESTPostAPIChannelMessageJSONBody, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, Snowflake, APIGuildMember, GatewayMessageCreateDispatchData, RESTPatchAPIChannelJSONBody, APIGuild, APIApplicationCommand, GatewayInteractionCreateDispatchData, APICommandAutocompleteInteractionResponseCallbackData } from "discord-api-types/v10"
 
 export class Client {
     private intents: number
@@ -421,6 +421,16 @@ export class Guild {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ type: 4, data: content })
+        }, (er, _res, body: string) => {
+        })
+    }
+
+    static autocomplete(content: APICommandAutocompleteInteractionResponseCallbackData, interactionId: string, token: string) {
+        request({
+            url: `https://discord.com/api/v10/interactions/${interactionId}/${token}/callback`,
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ type: 8, data: content })
         }, (er, _res, body: string) => {
         })
     }
