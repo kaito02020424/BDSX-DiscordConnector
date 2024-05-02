@@ -408,30 +408,38 @@ export class Guild {
                 headers: { Authorization: `Bot ${this.token}`, "Content-Type": "application/json" },
                 body: JSON.stringify(command)
             }, (err, res, body) => {
-                if (res.statusCode.toString().startsWith("2")) resolve()
+                if (res.statusCode.toString().startsWith("2")) return resolve();
+                if (res.statusCode === 400) return reject(JSON.parse(body));
+
                 if (JSON.parse(body).retry_after != undefined) setTimeout(async () => {
                     resolve(await this.registerSlashCommand(command))
                 }, (JSON.parse(body).retry_after + 1) * 1000);
             })
         })
     }
-    static response(content: RESTPostAPIChannelMessageJSONBody, interactionId: string, token: string) {
-        request({
-            url: `https://discord.com/api/v10/interactions/${interactionId}/${token}/callback`,
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ type: 4, data: content })
-        }, (er, _res, body: string) => {
-        })
+    static response(content: RESTPostAPIChannelMessageJSONBody, interactionId: string, token: string): Promise<void> {
+        return new Promise(resolve => {
+            request({
+                url: `https://discord.com/api/v10/interactions/${interactionId}/${token}/callback`,
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ type: 4, data: content })
+            }, (er, _res, body: string) => {
+                resolve();
+            })
+        });
     }
 
-    static autocomplete(content: APICommandAutocompleteInteractionResponseCallbackData, interactionId: string, token: string) {
-        request({
-            url: `https://discord.com/api/v10/interactions/${interactionId}/${token}/callback`,
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ type: 8, data: content })
-        }, (er, _res, body: string) => {
-        })
+    static autocomplete(content: APICommandAutocompleteInteractionResponseCallbackData, interactionId: string, token: string): Promise<void> {
+        return new Promise(resolve => {
+            request({
+                url: `https://discord.com/api/v10/interactions/${interactionId}/${token}/callback`,
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ type: 8, data: content })
+            }, (er, _res, body: string) => {
+                resolve();
+            })
+        });
     }
 }

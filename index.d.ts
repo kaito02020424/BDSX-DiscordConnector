@@ -117,7 +117,7 @@ export declare class Guild {
     private client;
     constructor(Client: Client, Base: APIGuild, token: string);
     registerSlashCommand(command: APIApplicationCommand): Promise<void>;
-    static response(content: RESTPostAPIChannelMessageJSONBody, interactionId: string, token: string): void;
-    static autocomplete(content: APICommandAutocompleteInteractionResponseCallbackData, interactionId: string, token: string): void;
+    static response(content: RESTPostAPIChannelMessageJSONBody, interactionId: string, token: string): Promise<void>;
+    static autocomplete(content: APICommandAutocompleteInteractionResponseCallbackData, interactionId: string, token: string): Promise<void>;
 }
 export {};
