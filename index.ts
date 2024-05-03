@@ -1,7 +1,7 @@
 import * as request from "request"
 import * as ws from "ws"
 import * as event from "events"
-import { APIMessage as Message, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, RESTPostAPIChannelMessageJSONBody, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, Snowflake, APIGuildMember, GatewayMessageCreateDispatchData, RESTPatchAPIChannelJSONBody, APIGuild, APIApplicationCommand, GatewayInteractionCreateDispatchData, APICommandAutocompleteInteractionResponseCallbackData } from "discord-api-types/v10"
+import { APIMessage as Message, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, RESTPostAPIChannelMessageJSONBody, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, Snowflake, APIGuildMember, GatewayMessageCreateDispatchData, RESTPatchAPIChannelJSONBody, APIGuild, APIApplicationCommand, GatewayInteractionCreateDispatchData, APICommandAutocompleteInteractionResponseCallbackData, APIEmbed } from "discord-api-types/v10"
 
 export class Client {
     private intents: number
@@ -258,20 +258,20 @@ export enum eventsNames {
 }
 
 
-export class EmbedBuilder {
-    private author?: APIEmbedAuthor | undefined
-    private title?: string | undefined
-    private color?: number | undefined
-    private image?: APIEmbedImage | undefined
-    private video?: APIEmbedVideo | undefined
-    private fields?: APIEmbedField[] | undefined
-    private footer?: APIEmbedFooter | undefined
-    private provider?: APIEmbedProvider | undefined
-    private thumbnail?: APIEmbedThumbnail | undefined
-    private timestamp?: string | undefined
-    private type?: EmbedType | undefined
-    private description?: string | undefined
-    private url?: string | undefined
+export class EmbedBuilder implements APIEmbed {
+    public author?: APIEmbedAuthor | undefined
+    public title?: string | undefined
+    public color?: number | undefined
+    public image?: APIEmbedImage | undefined
+    public video?: APIEmbedVideo | undefined
+    public fields?: APIEmbedField[] | undefined
+    public footer?: APIEmbedFooter | undefined
+    public provider?: APIEmbedProvider | undefined
+    public thumbnail?: APIEmbedThumbnail | undefined
+    public timestamp?: string | undefined
+    public type?: EmbedType | undefined
+    public description?: string | undefined
+    public url?: string | undefined
     setUrl(url: string): EmbedBuilder {
         this.url = url;
         return this;
@@ -325,7 +325,7 @@ export class EmbedBuilder {
         return this;
     }
 }
-class Channel {
+export class Channel {
     public info: APIChannel
     private token: string
     constructor(Base: APIChannel, token: string) {
