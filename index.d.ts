@@ -1,4 +1,4 @@
-import { APIMessage as Message, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, RESTPostAPIChannelMessageJSONBody, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, APIGuildMember, GatewayMessageCreateDispatchData, APIGuild, APIApplicationCommand, GatewayInteractionCreateDispatchData, APICommandAutocompleteInteractionResponseCallbackData } from "discord-api-types/v10";
+import { APIMessage as Message, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, RESTPostAPIChannelMessageJSONBody, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, APIGuildMember, GatewayMessageCreateDispatchData, APIGuild, APIApplicationCommand, GatewayInteractionCreateDispatchData, APICommandAutocompleteInteractionResponseCallbackData, APIEmbed } from "discord-api-types/v10";
 export declare class Client {
     private intents;
     private token;
@@ -75,20 +75,20 @@ export declare enum eventsNames {
     GuildCreate = "GUILD_CREATE",
     InteractionCreate = "INTERACTION_CREATE"
 }
-export declare class EmbedBuilder {
-    private author?;
-    private title?;
-    private color?;
-    private image?;
-    private video?;
-    private fields?;
-    private footer?;
-    private provider?;
-    private thumbnail?;
-    private timestamp?;
-    private type?;
-    private description?;
-    private url?;
+export declare class EmbedBuilder implements APIEmbed {
+    author?: APIEmbedAuthor | undefined;
+    title?: string | undefined;
+    color?: number | undefined;
+    image?: APIEmbedImage | undefined;
+    video?: APIEmbedVideo | undefined;
+    fields?: APIEmbedField[] | undefined;
+    footer?: APIEmbedFooter | undefined;
+    provider?: APIEmbedProvider | undefined;
+    thumbnail?: APIEmbedThumbnail | undefined;
+    timestamp?: string | undefined;
+    type?: EmbedType | undefined;
+    description?: string | undefined;
+    url?: string | undefined;
     setUrl(url: string): EmbedBuilder;
     setDescription(description: string): EmbedBuilder;
     setType(typeInfo: EmbedType): EmbedBuilder;
@@ -103,7 +103,7 @@ export declare class EmbedBuilder {
     setFields(fieldsInfo: APIEmbedField[]): EmbedBuilder;
     setFooter(footerInfo: APIEmbedFooter): EmbedBuilder;
 }
-declare class Channel {
+export declare class Channel {
     info: APIChannel;
     private token;
     constructor(Base: APIChannel, token: string);
@@ -120,4 +120,3 @@ export declare class Guild {
     static response(content: RESTPostAPIChannelMessageJSONBody, interactionId: string, token: string): Promise<void>;
     static autocomplete(content: APICommandAutocompleteInteractionResponseCallbackData, interactionId: string, token: string): Promise<void>;
 }
-export {};
