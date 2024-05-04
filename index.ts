@@ -1,7 +1,10 @@
 import * as request from "request"
 import * as ws from "ws"
 import * as event from "events"
-import { APIMessage as Message, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, RESTPostAPIChannelMessageJSONBody, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, Snowflake, APIGuildMember, GatewayMessageCreateDispatchData, RESTPatchAPIChannelJSONBody, APIGuild, APIApplicationCommand, GatewayInteractionCreateDispatchData, APICommandAutocompleteInteractionResponseCallbackData, APIEmbed } from "discord-api-types/v10"
+import type { APIMessage as Message, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, RESTPostAPIChannelMessageJSONBody, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, Snowflake, APIGuildMember, GatewayMessageCreateDispatchData, RESTPatchAPIChannelJSONBody, APIGuild, APIApplicationCommand, GatewayInteractionCreateDispatchData, APICommandAutocompleteInteractionResponseCallbackData, APIEmbed } from "discord-api-types/v10"
+import { ApplicationCommandType, InteractionResponseType } from './enum';
+
+export * from './enum';
 
 export class Client {
     private intents: number
@@ -401,7 +404,7 @@ export class Guild {
 
     registerSlashCommand(command: APIApplicationCommand): Promise<void> {
         return new Promise((resolve, reject) => {
-            if (command.type !== 1) return reject("registerSlashCommand() can only register slash command.")
+            if (command.type !== ApplicationCommandType.ChatInput) return reject("registerSlashCommand() can only register slash command.")
             request({
                 url: `https://discord.com/api/v10/applications/${this.client.applicationId}/guilds/${this.info.id}/commands`,
                 method: "POST",
@@ -423,7 +426,7 @@ export class Guild {
                 url: `https://discord.com/api/v10/interactions/${interactionId}/${token}/callback`,
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ type: 4, data: content })
+                body: JSON.stringify({ type: InteractionResponseType.ChannelMessageWithSource, data: content })
             }, (er, _res, body: string) => {
                 resolve();
             })
@@ -436,7 +439,7 @@ export class Guild {
                 url: `https://discord.com/api/v10/interactions/${interactionId}/${token}/callback`,
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ type: 8, data: content })
+                body: JSON.stringify({ type: InteractionResponseType.ApplicationCommandAutocompleteResult, data: content })
             }, (er, _res, body: string) => {
                 resolve();
             })

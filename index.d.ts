@@ -1,4 +1,5 @@
-import { APIMessage as Message, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, RESTPostAPIChannelMessageJSONBody, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, APIGuildMember, GatewayMessageCreateDispatchData, APIGuild, APIApplicationCommand, GatewayInteractionCreateDispatchData, APICommandAutocompleteInteractionResponseCallbackData, APIEmbed } from "discord-api-types/v10";
+import type { APIMessage as Message, APIEmbedAuthor, APIEmbedImage, APIEmbedVideo, APIEmbedField, APIEmbedFooter, APIEmbedProvider, APIEmbedThumbnail, EmbedType, RESTPostAPIChannelMessageJSONBody, GatewayReadyDispatchData, GatewayGuildCreateDispatchData, APIChannel, APIGuildMember, GatewayMessageCreateDispatchData, APIGuild, APIApplicationCommand, GatewayInteractionCreateDispatchData, APICommandAutocompleteInteractionResponseCallbackData, APIEmbed } from "discord-api-types/v10";
+export * from './enum';
 export declare class Client {
     private intents;
     private token;
